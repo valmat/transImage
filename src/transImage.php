@@ -75,7 +75,16 @@
         }
         
         $selfObj = new self($ImgRes, $width, $height, $Orient);
-        $selfObj->normalSize();
+        
+        # Fill a white background, if the format requires transparency
+        if( !$selfObj->normalSize() && (1==$imgNtype || 3==$imgNtype) ) {
+            $newImage = ImageCreateTrueColor($selfObj->width, $selfObj->height);
+            imagefill($newImage, 0, 0, imagecolorallocate($newImage, 255, 255, 255));
+            imagecopy($newImage, $selfObj->ImgRes, 0,0,0,0, $selfObj->width, $selfObj->height);
+            imageDestroy($selfObj->ImgRes);
+            $selfObj->ImgRes = $newImage;
+        }
+        
         if(1!=$selfObj->orient) {
             $selfObj->rotateExif();
         }
@@ -90,7 +99,16 @@
      * @return NULL or self object, depending on the value of $getCopy 
      */
     public function resize($maxW, $maxH, $getCopy = false) {
-        $newW = $width = $this->width; $newH = $height = $this->height;
+        $newW = $this->width; $newH = $this->height;
+        if($newW < $maxW && $newH < $maxH) {
+            if(!$getCopy)
+                return false;
+            
+            $newImage = ImageCreateTrueColor($newW, $newH);
+            imagefill($newImage, 0, 0, imagecolorallocate($newImage, 255, 255, 255));
+            imagecopy($newImage, $this->ImgRes,0,0,0,0,$newW,$newH);            
+            return new self($newImgRes, $newW, $newH);
+        }
         if($newW > $maxW) {
             $newH = round($newH*$maxW/$newW);
             $newW = $maxW;
@@ -100,7 +118,9 @@
             $newH = $maxH;
         }
         
-        $newImgRes = imagecreatetruecolor($newW,$newH);
+        $newImgRes = imagecreatetruecolor($newW, $newH);
+        imagefill($newImgRes, 0, 0, imagecolorallocate($newImgRes, 255, 255, 255));
+        
         if(!imagecopyresampled($newImgRes,$this->ImgRes,0,0,0,0,$newW,$newH,$width,$height)) {
             imageDestroy($newImgRes);
             return false;
@@ -112,7 +132,8 @@
         imageDestroy($this->ImgRes);
         $this->width  = $newW;
         $this->height = $newH;
-        $this->ImgRes = $newImgRes;    
+        $this->ImgRes = $newImgRes;
+        return true;
     }
     
     /*
@@ -121,6 +142,7 @@
      * Performed before the turn and using
      * @param $imgRes gdresourse
      * @param void
+     * @return bool. True if resized
      */
     private function normalSize() {
         # effective sizes
@@ -133,9 +155,10 @@
             $maxH = self::MAXSX; $maxW = self::MAXSY;
         }
         if($effW <= self::MAXSX && $effH <= self::MAXSY) {
-            return true;
+            return false;
         }
-        $this->resize($maxW, $maxH);
+        
+        return $this->resize($maxW, $maxH);
     }    
     
     /*
@@ -224,6 +247,11 @@
     public function outJpeg() {
         header('Content-Type: image/jpeg');
         imagejpeg($this->ImgRes);
+    }
+    
+    public function outPng() {
+        header('Content-Type: image/png');
+        imagepng($this->ImgRes);
     }
     
     /*
