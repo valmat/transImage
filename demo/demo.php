@@ -6,4 +6,5 @@
     if( !($img = transImage::createFromFile($imgfile,$alarm) ) ) {
         echo "<hr>$alarm";
     }
-    $img->outJpeg();
+    $img1 = $img->resize(100,100, true);
+    $img1->outJpeg();

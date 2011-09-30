@@ -22,7 +22,7 @@
      *  private constructur.
      *  For create object, use transImage::createFromFile()
      */
-    private function __construct(&$ImgRes, $width, $height, $Orient = 1) {
+    private function __construct($ImgRes, $width, $height, $Orient = 1) {
         
         $this->ImgRes = $ImgRes;
         $this->orient = (self::ROTATEONEXIF)?$Orient:1;
@@ -98,12 +98,38 @@
         
     }
     
-    public function resize() {
-        return $this->ImgRes;
-    }
     
-    public function resizedCopy() {
+    /*
+     * function resize
+     * @param int $maxW max width
+     * @param int $maxH msx height
+     * @param bool $getCopy if false - resize self, else return resized copy
+     * @return NULL or self object, depending on the value of $getCopy 
+     */
+    public function resize($maxW, $maxH, $getCopy = false) {
+        $newW = $width = $this->width; $newH = $height = $this->height;
+        if($newW > $maxW) {
+            $newH = round($newH*$maxW/$newW);
+            $newW = $maxW;
+        }
+        if($newH > $maxH) {
+            $newW = round($newW*$maxH/$newH);
+            $newH = $maxH;
+        }
         
+        $newImgRes = imagecreatetruecolor($newW,$newH);
+        if(!imagecopyresampled($newImgRes,$this->ImgRes,0,0,0,0,$newW,$newH,$width,$height)) {
+            imageDestroy($newImgRes);
+            return false;
+        }
+        
+        if( $getCopy ) {
+            return new self($newImgRes, $newW, $newH);
+        }
+        imageDestroy($this->ImgRes);
+        $this->width  = $newW;
+        $this->height = $newH;
+        $this->ImgRes = $newImgRes;    
     }
     
     /*
@@ -143,27 +169,7 @@
         if($effW <= self::MAXSX && $effH <= self::MAXSY) {
             return true;
         }
-        
-        $newW = $width; $newH = $height;
-        if($newW > $maxW) {
-            $newH = round($newH*$maxW/$newW);
-            $newW = $maxW;
-        }
-        if($newH > $maxH) {
-            $newW = round($newW*$maxH/$newH);
-            $newH = $maxH;
-        }
-        
-        $newImgRes = imagecreatetruecolor($newW,$newH);
-        if(!imagecopyresampled($newImgRes,$this->ImgRes,0,0,0,0,$newW,$newH,$width,$height)) {
-            imageDestroy($newImgRes);
-            return false;
-        }
-        
-        imageDestroy($this->ImgRes);
-        $this->width  = $newW;
-        $this->height = $newH;
-        $this->ImgRes = $newImgRes;
+        $this->resize($maxW, $maxH);
     }    
     
     /*
