@@ -6,7 +6,6 @@
   */
 
     class CONFIG_transImage {
-        
         /**
           * Rotate image canvas on Exif data: true/false
           */
@@ -28,10 +27,30 @@
           * max size on oY in pixeles
           */
         const MAXSY = 600;
+    }
+    
+################################################################################
+/**
+  *  [waterMark]
+  *  config for class  waterMark
+  */
+    class CONFIG_waterMark {
+        /**
+          * watermark sourse file in PNG format
+          */
+        const FILE = '../src/watermark.png';
         
+        /**
+          * position at the top in px.
+          * If negative, it is measured from the bottom 
+          */
+        const TOPPOS = -10;
         
-        
-        
+        /**
+          * position at the left in px.
+          * If negative, it is measured from the right
+          */
+        const LEFTPOS = 20;
     }
     
 ?>

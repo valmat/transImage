@@ -23,15 +23,11 @@
      *  For create object, use transImage::createFromFile()
      */
     private function __construct($ImgRes, $width, $height, $Orient = 1) {
-        
         $this->ImgRes = $ImgRes;
         $this->orient = (self::ROTATEONEXIF)?$Orient:1;
         $this->width  = $width;
         $this->height = $height;
         $this->ImgRes = $ImgRes;
-        
-        
-        //$this->ImgRes = $ImgRes;
     }
     
     public function __destruct(){
@@ -44,7 +40,6 @@
      * @param string $alarm
      */
     public function createFromFile($fileName, &$alarm){
-        
         if(!file_exists($fileName)) {
             $alarm = 'file not exist';
             return false;
@@ -54,9 +49,7 @@
             return false;
         }
         
-        $imgNtype = $imgProp[2];
-        $width    = $imgProp[0];
-        $height   = $imgProp[1];
+        list($width, $height, $imgNtype) = $imgProp;
         $imgtypesarray = Array(
                         1  => 'gif',
                         2  => 'jpeg',
@@ -86,18 +79,8 @@
         if(1!=$selfObj->orient) {
             $selfObj->rotateExif();
         }
-        
         return $selfObj;
     }
-    
-    /*
-     * function addWatermark
-     * @param string $toFile
-     */
-    public function addWatermark(Watermark $watermark) {
-        
-    }
-    
     
     /*
      * function resize
@@ -130,23 +113,6 @@
         $this->width  = $newW;
         $this->height = $newH;
         $this->ImgRes = $newImgRes;    
-    }
-    
-    /*
-     * function getCopy
-     * get transformed getCopy from self
-     * @param void
-     */
-    private function getCopy() {
-        
-    }
-    
-    /*
-     * function save
-     * @param string $toFile
-     */
-    public function save($toFile) {
-        
     }
     
     /*
@@ -260,4 +226,68 @@
         imagejpeg($this->ImgRes);
     }
     
+    /*
+     * function save
+     * @param string $toFile
+     */
+    public function save($toFile) {
+        
+    }    
+    
+    /*
+     * function addWatermark
+     * @param string $toFile
+     */
+    public function addWatermark(waterMark $watermark) {
+        $watermark->setOn($this->ImgRes, $this->width, $this->height);
+    }
+    
  }
+ 
+ 
+ /**
+ *  class transImage
+ *  transform the image and watermarking
+ */
+ class waterMark {
+    
+    const FILE    = CONFIG_waterMark::FILE;
+    const TOPPOS  = CONFIG_waterMark::TOPPOS;
+    const LEFTPOS = CONFIG_waterMark::LEFTPOS;
+        
+    private $res;
+    private $width;
+    private $height;
+    
+    /**
+     *  private constructur.
+     *  For create object, use transImage::createFromFile()
+     */
+    public function __construct($file = self::FILE) {
+        list($this->width, $this->height, $imgNtype) = getimagesize($file);
+        $imgtypesarray = Array(1 => 'gif', 2 => 'jpeg', 3 => 'png',);
+        if( $imgNtype > 3 ) {
+            return false;
+        }
+        $this->res = call_user_func('imageCreateFrom' . $imgtypesarray[$imgNtype], $file);
+    }
+    
+    public function __destruct(){
+        imageDestroy($this->res);
+    }
+    
+    /*
+     * function setOn
+     * set watermark on image $img 
+     * @param $img - image resource identifier
+     * @param int $width 
+     * @param int $height
+     */
+    function setOn($img, $width = 0, $height = 0) {
+        $posX = (self::LEFTPOS>0) ? self::LEFTPOS : ($width - $this->width  + self::LEFTPOS);
+        $posY = (self::TOPPOS>0)  ? self::TOPPOS  : ($height - $this->height + self::TOPPOS);
+        return imagecopy ($img, $this->res, $posX, $posY, 0, 0, $this->width, $this->height);
+        
+    }
+    
+ } 
