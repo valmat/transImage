@@ -99,10 +99,11 @@
      * @return NULL or self object, depending on the value of $getCopy 
      */
     public function resize($maxW, $maxH, $getCopy = false) {
-        $newW = $this->width; $newH = $this->height;
+        $newW = $width = $this->width; $newH = $height = $this->height;
         if($newW < $maxW && $newH < $maxH) {
-            if(!$getCopy)
+            if(!$getCopy) {
                 return false;
+            }
             
             $newImage = ImageCreateTrueColor($newW, $newH);
             imagefill($newImage, 0, 0, imagecolorallocate($newImage, 255, 255, 255));
@@ -254,6 +255,11 @@
         imagepng($this->ImgRes);
     }
     
+    public function outGif() {
+        header('Content-Type: image/gif');
+        imageGif($this->ImgRes);
+    }
+    
     /*
      * function save
      * @param string $toFile
@@ -267,17 +273,25 @@
      * @param string $toFile
      */
     public function addWatermark(waterMark $watermark) {
-        $watermark->setOn($this->ImgRes, $this->width, $this->height);
+        $watermark->set($this->ImgRes, $this->width, $this->height);
     }
     
  }
  
  
  /**
- *  class transImage
- *  transform the image and watermarking
+ *  interface waterMark
+ *  waterMark for using in class transform
  */
- class waterMark {
+ interface waterMark {
+    function set($img, $width = 0, $height = 0);
+ }
+ 
+ 
+ /**
+ *  class waterMarkSimpl
+ */
+ class waterMarkSmpl implements waterMark {
     
     const FILE    = CONFIG_waterMark::FILE;
     const TOPPOS  = CONFIG_waterMark::TOPPOS;
@@ -311,7 +325,7 @@
      * @param int $width 
      * @param int $height
      */
-    function setOn($img, $width = 0, $height = 0) {
+    function set($img, $width = 0, $height = 0) {
         $posX = (self::LEFTPOS>0) ? self::LEFTPOS : ($width - $this->width  + self::LEFTPOS);
         $posY = (self::TOPPOS>0)  ? self::TOPPOS  : ($height - $this->height + self::TOPPOS);
         return imagecopy ($img, $this->res, $posX, $posY, 0, 0, $this->width, $this->height);
