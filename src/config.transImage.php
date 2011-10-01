@@ -38,7 +38,7 @@
         /**
           * watermark sourse file in PNG format
           */
-        const FILE = '../src/watermark.png';
+        const FILE = '../src/watermarks/waterMarkSmpl.png';
         
         /**
           * position at the top in px.

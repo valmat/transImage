@@ -1,8 +1,10 @@
 <?php
     
     require '../src/transImage.php';
+    require '../src/watermarks/waterMarkSmpl.php';
     
     $imgfile = 'w8.JPG';
+    
     if( !($img = transImage::createFromFile($imgfile,$alarm) ) ) {
         echo "<hr>$alarm";
     }
@@ -14,7 +16,9 @@
     //$img->resize(500,500);
     //$img->outPng();
     
-    $img->resize(300,300);
+    //$img->resize(150,150);
     $img->outPng();
+    //$img->outJpeg();
+    //$img->outGif();
     
 
