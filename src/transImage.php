@@ -25,6 +25,10 @@
     private $orient = 1; // default 1 - normal orientation
     private $width;
     private $height;
+    /**
+     *  flag for manual close object
+     */
+    private $closed = false;
     
     /**
      *  private constructur.
@@ -39,7 +43,19 @@
     }
     
     public function __destruct(){
+        return $this->close();
+    }
+    
+    /**
+     *  function close()
+     *  for manual close object 
+     */    
+    public function close(){
+        if($this->closed)
+            return false;
+        $this->closed = true;
         imageDestroy($this->ImgRes);
+        return true;
     }
     
     /*
@@ -271,7 +287,7 @@
      * @param string $type image string-type
      */
     public function save($toFile, $type = self::IMAGE_TYPE_JPEG) {
-        call_user_func('image' . $type, $this->ImgRes, $toFile);
+        return call_user_func('image' . $type, $this->ImgRes, $toFile);
     }    
     
     /*
