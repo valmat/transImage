@@ -291,5 +291,13 @@
  *  waterMark for using in class transform
  */
  interface waterMark {
+    /*
+     * function set
+     * set self watermark on image $img 
+     * @param $img - image resource identifier
+     * @param int $width 
+     * @param int $height
+     * @return void
+     */     
     function set($img, $width = 0, $height = 0);
  }
