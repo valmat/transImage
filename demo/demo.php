@@ -13,7 +13,7 @@
     //$img1->outJpeg();
     
     $img->addWatermark(new waterMarkSmpl());
-    //$img->resize(500,500);
+    $img->resize(500,500);
     //$img->outPng();
     
     //$img->resize(150,150);

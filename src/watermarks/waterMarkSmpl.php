@@ -13,8 +13,7 @@
     private $height;
     
     /**
-     *  private constructur.
-     *  For create object, use transImage::createFromFile()
+     *  constructur.
      */
     public function __construct($file = self::FILE) {
         list($this->width, $this->height, $imgNtype) = getimagesize($file);

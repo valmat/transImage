@@ -78,8 +78,7 @@
         
         # Fill a white background, if the format requires transparency
         if( !$selfObj->normalSize() && (1==$imgNtype || 3==$imgNtype) ) {
-            $newImage = ImageCreateTrueColor($selfObj->width, $selfObj->height);
-            imagefill($newImage, 0, 0, imagecolorallocate($newImage, 255, 255, 255));
+            $newImage = $selfObj->getFill();
             imagecopy($newImage, $selfObj->ImgRes, 0,0,0,0, $selfObj->width, $selfObj->height);
             imageDestroy($selfObj->ImgRes);
             $selfObj->ImgRes = $newImage;
@@ -96,7 +95,7 @@
      * @param int $maxW max width
      * @param int $maxH msx height
      * @param bool $getCopy if false - resize self, else return resized copy
-     * @return NULL or self object, depending on the value of $getCopy 
+     * @return bool or self object, depending on the value of $getCopy 
      */
     public function resize($maxW, $maxH, $getCopy = false) {
         $newW = $width = $this->width; $newH = $height = $this->height;
@@ -104,11 +103,9 @@
             if(!$getCopy) {
                 return false;
             }
-            
-            $newImage = ImageCreateTrueColor($newW, $newH);
-            imagefill($newImage, 0, 0, imagecolorallocate($newImage, 255, 255, 255));
+            $newImage = $this->getFill();
             imagecopy($newImage, $this->ImgRes,0,0,0,0,$newW,$newH);            
-            return new self($newImgRes, $newW, $newH);
+            return new self($newImage, $newW, $newH);
         }
         if($newW > $maxW) {
             $newH = round($newH*$maxW/$newW);
@@ -119,21 +116,19 @@
             $newH = $maxH;
         }
         
-        $newImgRes = imagecreatetruecolor($newW, $newH);
-        imagefill($newImgRes, 0, 0, imagecolorallocate($newImgRes, 255, 255, 255));
-        
-        if(!imagecopyresampled($newImgRes,$this->ImgRes,0,0,0,0,$newW,$newH,$width,$height)) {
-            imageDestroy($newImgRes);
+        $newImage = $this->getFill($newW, $newH);
+        if(!imagecopyresampled($newImage,$this->ImgRes,0,0,0,0,$newW,$newH,$width,$height)) {
+            imageDestroy($newImage);
             return false;
         }
         
         if( $getCopy ) {
-            return new self($newImgRes, $newW, $newH);
+            return new self($newImage, $newW, $newH);
         }
         imageDestroy($this->ImgRes);
         $this->width  = $newW;
         $this->height = $newH;
-        $this->ImgRes = $newImgRes;
+        $this->ImgRes = $newImage;
         return true;
     }
     
@@ -166,6 +161,7 @@
      * private function rotateExif
      * rotate the image according to exif
      * @param $void
+     * @return bool. True if successfully
      */
     private function rotateExif() {
         $degArr = Array(
@@ -242,9 +238,20 @@
     }
     
     /*
-     * function outJpeg
-     * @param void
+     * function getFill
+     * create and return filled img area
+     * @param int $width
+     * @param int $height
+     * @return image resource identifier
      */
+    private function getFill($width = NULL, $height = NULL) {
+        $width  = ($width)  ? $width : $this->width;
+        $height = ($height) ? $height : $this->height;
+        $newImage = ImageCreateTrueColor($width, $height);
+        imagefill($newImage, 0, 0, imagecolorallocate($newImage, 255, 255, 255));
+        return $newImage;
+    }
+    
     public function outJpeg() {
         header('Content-Type: image/jpeg');
         imagejpeg($this->ImgRes);
@@ -270,7 +277,7 @@
     
     /*
      * function addWatermark
-     * @param string $toFile
+     * @param waterMark $watermark. waterMark implemented object
      */
     public function addWatermark(waterMark $watermark) {
         $watermark->set($this->ImgRes, $this->width, $this->height);
