@@ -17,8 +17,9 @@
     //$img->outPng();
     
     //$img->resize(150,150);
-    $img->outPng();
-    //$img->outJpeg();
-    //$img->outGif();
+    //$img->out();
+    //$img->out(transImage::IMAGE_TYPE_GIF);
+    $img->out(transImage::IMAGE_TYPE_PNG);
+    
     
 

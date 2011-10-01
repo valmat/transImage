@@ -29,7 +29,7 @@
     }
     
     /*
-     * function setOn
+     * function set
      * set watermark on image $img 
      * @param $img - image resource identifier
      * @param int $width 

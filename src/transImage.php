@@ -13,6 +13,14 @@
     const MAXSX        = CONFIG_transImage::MAXSX;
     const MAXSY        = CONFIG_transImage::MAXSY;
     
+    /**
+     *  predefined types of images
+     *  for use in self::out() and self::save()
+     */
+    const IMAGE_TYPE_JPEG = 'jpeg';
+    const IMAGE_TYPE_GIF  = 'gif';
+    const IMAGE_TYPE_PNG  = 'png';
+    
     private $ImgRes;
     private $orient = 1; // default 1 - normal orientation
     private $width;
@@ -252,19 +260,9 @@
         return $newImage;
     }
     
-    public function outJpeg() {
-        header('Content-Type: image/jpeg');
-        imagejpeg($this->ImgRes);
-    }
-    
-    public function outPng() {
-        header('Content-Type: image/png');
-        imagepng($this->ImgRes);
-    }
-    
-    public function outGif() {
-        header('Content-Type: image/gif');
-        imageGif($this->ImgRes);
+    public function out($type = self::IMAGE_TYPE_JPEG) {
+        header('Content-Type: image/' . $type);
+        call_user_func('image' . $type, $this->ImgRes);
     }
     
     /*
