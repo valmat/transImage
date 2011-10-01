@@ -268,9 +268,10 @@
     /*
      * function save
      * @param string $toFile
+     * @param string $type image string-type
      */
-    public function save($toFile) {
-        
+    public function save($toFile, $type = self::IMAGE_TYPE_JPEG) {
+        call_user_func('image' . $type, $this->ImgRes, $toFile);
     }    
     
     /*

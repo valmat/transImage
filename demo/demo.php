@@ -19,7 +19,11 @@
     //$img->resize(150,150);
     //$img->out();
     //$img->out(transImage::IMAGE_TYPE_GIF);
+    //$img->out(transImage::IMAGE_TYPE_PNG);
+    
+    $img->save('/tmp/t1.PNG', transImage::IMAGE_TYPE_PNG);
+    $img->save('/tmp/t1.GIF', transImage::IMAGE_TYPE_GIF);
+    $img->save('/tmp/t1.JPG');
+    $img->resize(150,150);
     $img->out(transImage::IMAGE_TYPE_PNG);
-    
-    
 
