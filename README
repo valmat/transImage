@@ -1,0 +1,16 @@
+transImage - is a PHP library for easy loading of photos on the site.
+
+It can:
+* Get image from the file and automatically normalize its size for save memory
+* Automatically rotate the original image according to the Exif
+* Create a copy of itself with updated by size, change self size
+* Apply a watermark. Supports any watermarks corresponding interface waterMark (see code)
+* Outputs to a client or save it to file system
+* Add a white background, if the original image support transparency.
+
+For more information, see the comments in the code.
+
+Fits Most of the sites you want to get the client a photo, convert it correctly according to the Exif, create several versions with different sizes, and may cause the watermark.
+I do not recommend its use for the issue to the client (browser) large images. This feature is only demonstrative.
+
+License BSD. 
