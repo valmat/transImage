@@ -322,9 +322,26 @@
         return $newImage;
     }
     
-    public function out($type = self::IMAGE_TYPE_JPEG) {
-        header('Content-Type: image/' . $type);
+    public function getWidth() {
+        return $this->width;
+    }
+    
+    public function getHeight() {
+        return $this->height;
+    }
+    
+    /*
+     * function getString
+     * can be used for use in sending data in json format 
+     * @param string image type
+     * @return string binary representation of the image, encoded at base64
+     */
+    public function getString($type = self::IMAGE_TYPE_JPEG) {
+        ob_start();
         call_user_func('image' . $type, $this->ImgRes);
+        $imguot = ob_get_contents();
+        ob_end_clean();
+        return base64_encode($imguot);
     }
     
     /*
