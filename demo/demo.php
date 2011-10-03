@@ -1,5 +1,6 @@
 <?php
-    
+    $memory_get_usage_start = (memory_get_usage()/1024);
+
     require '../src/transImage.php';
     require '../src/watermarks/waterMarkSmpl.php';
     
@@ -25,3 +26,6 @@
     $img->resize(150,150);
     $img->out(transImage::IMAGE_TYPE_PNG);
 
+    
+//echo '<hr>memory usage: '.(memory_get_usage()/1024-$memory_get_usage_start) .'Κα<br>';
+//echo '<hr>memory peak_usage: '.(memory_get_peak_usage()/1024-$memory_get_usage_start) .'Κα<br>';

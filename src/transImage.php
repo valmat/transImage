@@ -10,8 +10,6 @@
     
     const ROTATEONEXIF = CONFIG_transImage::ROTATEONEXIF;
     const IMGTYPES     = CONFIG_transImage::IMGTYPES;
-    const MAXSX        = CONFIG_transImage::MAXSX;
-    const MAXSY        = CONFIG_transImage::MAXSY;
     
     /**
      *  predefined types of images
@@ -25,6 +23,9 @@
     private $orient = 1; // default 1 - normal orientation
     private $width;
     private $height;
+    private $maxsx = CONFIG_transImage::MAXSX;
+    private $maxsy = CONFIG_transImage::MAXSY;
+    
     /**
      *  flag for manual close object
      */
@@ -36,7 +37,7 @@
      */
     private function __construct($ImgRes, $width, $height, $Orient = 1) {
         $this->ImgRes = $ImgRes;
-        $this->orient = (self::ROTATEONEXIF)?$Orient:1;
+        $this->orient = (self::ROTATEONEXIF) ? $Orient : 1;
         $this->width  = $width;
         $this->height = $height;
         $this->ImgRes = $ImgRes;
@@ -62,6 +63,7 @@
      * function createFromFile
      * @param string $fileName
      * @param string $alarm
+     * @return self object or false on failure
      */
     public function createFromFile($fileName, &$alarm){
         if(!file_exists($fileName)) {
@@ -82,7 +84,7 @@
                         IMAGETYPE_XBM  => 'xbm'                        
                        );
         if( !isset($imgtypesarray[$imgNtype]) ||
-            !in_array($imgNtype, explode(',',self::IMGTYPES)) ) {
+            !in_array($imgNtype, explode(',', self::IMGTYPES)) ) {
             $alarm = 'image type not allowed';
             return false;
         }
@@ -120,8 +122,11 @@
      * create image from Exif thumbnail for fast preview
      * @param string $fileName
      * @param string $alarm
+     * @param int $max size Ox
+     * @param int $max size Oy
+     * @return self object or false on failure
      */
-    public function createFromThumb($fileName, &$alarm){
+    public function createFromThumb($fileName, &$alarm, $maxsx = 0, $maxsy = 0){
         if(!file_exists($fileName)) {
             $alarm = 'file not exist';
             return false;
@@ -144,6 +149,9 @@
             $Orient = $exif['Orientation'];
         }
         $selfObj = new self($ImgRes, $width, $height, $Orient);
+        !$maxsx || ($selfObj->maxsx = $maxsx);
+        !$maxsy || ($selfObj->maxsy = $maxsy);
+        
         $selfObj->normalSize();
         
         if(1!=$selfObj->orient) {
@@ -206,13 +214,13 @@
         # effective sizes
         $effW = $width = $this->width; $effH = $height = $this->height;
         # max sizes
-        $maxW = self::MAXSX; $maxH = self::MAXSY;
+        $maxW = $this->maxsx; $maxH = $this->maxsy;
         
         if(6==$this->orient || 8==$this->orient || 5==$this->orient || 7==$this->orient) {
             $effH = $width; $effW = $height;
-            $maxH = self::MAXSX; $maxW = self::MAXSY;
+            $maxH = $this->maxsx; $maxW = $this->maxsy;
         }
-        if($effW <= self::MAXSX && $effH <= self::MAXSY) {
+        if($effW <= $this->maxsx && $effH <= $this->maxsy) {
             return false;
         }
         
