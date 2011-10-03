@@ -1,4 +1,4 @@
-transImage - is a PHP library for easy loading of photos on the site.
+transImage - is a PHP library for easy loading and transformation of photos or images on the site.
 
 It can:
 * Get image from the file and automatically normalize its size for save memory

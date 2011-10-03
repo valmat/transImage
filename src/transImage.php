@@ -75,11 +75,11 @@
         
         list($width, $height, $imgNtype) = $imgProp;
         $imgtypesarray = Array(
-                        1  => 'gif',
-                        2  => 'jpeg',
-                        3  => 'png',
-                        15 => 'wbmp',
-                        16 => 'xbm'                        
+                        IMAGETYPE_GIF  => 'gif',
+                        IMAGETYPE_JPEG => 'jpeg',
+                        IMAGETYPE_PNG  => 'png',
+                        IMAGETYPE_WBMP => 'wbmp',
+                        IMAGETYPE_XBM  => 'xbm'                        
                        );
         if( !isset($imgtypesarray[$imgNtype]) ||
             !in_array($imgNtype, explode(',',self::IMGTYPES)) ) {
@@ -93,20 +93,58 @@
         }
         
         $Orient = 1;
-        if(2 == $imgNtype && self::ROTATEONEXIF && ($exif = exif_read_data($fileName))
-           && isset($exif['Orientation']) ) {
+        if(IMAGETYPE_JPEG == $imgNtype && self::ROTATEONEXIF &&
+        ($exif = exif_read_data($fileName)) && isset($exif['Orientation']) ) {
             $Orient = $exif['Orientation'];
         }
         
         $selfObj = new self($ImgRes, $width, $height, $Orient);
         
         # Fill a white background, if the format requires transparency
-        if( !$selfObj->normalSize() && (1==$imgNtype || 3==$imgNtype) ) {
+        if( !$selfObj->normalSize() &&
+        (IMAGETYPE_GIF==$imgNtype || IMAGETYPE_PNG==$imgNtype) ) {
             $newImage = $selfObj->getFill();
             imagecopy($newImage, $selfObj->ImgRes, 0,0,0,0, $selfObj->width, $selfObj->height);
             imageDestroy($selfObj->ImgRes);
             $selfObj->ImgRes = $newImage;
         }
+        
+        if(1!=$selfObj->orient) {
+            $selfObj->rotateExif();
+        }
+        return $selfObj;
+    }
+    
+    /*
+     * function createFromThumb
+     * create image from Exif thumbnail for fast preview
+     * @param string $fileName
+     * @param string $alarm
+     */
+    public function createFromThumb($fileName, &$alarm){
+        if(!file_exists($fileName)) {
+            $alarm = 'file not exist';
+            return false;
+        }
+        if( !($imgProp = getimagesize($fileName)) ) {
+            $alarm = 'is not image';
+            return false;
+        }
+        if( IMAGETYPE_JPEG !== $imgProp[2] ||
+        !($imgStr = exif_thumbnail ($fileName, $width, $height, $imageNtype)) ||
+        IMAGETYPE_JPEG !== $imageNtype ||
+        !($ImgRes = imageCreateFromString($imgStr)) ) {
+            $alarm = 'thumbnail not supported';
+            return false;
+        }
+        
+        $Orient = 1;
+        if(self::ROTATEONEXIF && ($exif = exif_read_data($fileName)) &&
+        isset($exif['Orientation']) ) {
+            $Orient = $exif['Orientation'];
+        }
+        $selfObj = new self($ImgRes, $width, $height, $Orient);
+        $selfObj->normalSize();
         
         if(1!=$selfObj->orient) {
             $selfObj->rotateExif();
