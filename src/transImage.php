@@ -344,6 +344,11 @@
         return base64_encode($imguot);
     }
     
+    public function out($type = self::IMAGE_TYPE_JPEG) {
+        header('Content-Type: image/' . $type);
+        call_user_func('image' . $type, $this->ImgRes);
+    }
+    
     /*
      * function save
      * @param string $toFile
