@@ -1,12 +1,12 @@
 <?php
 
- require 'config.transImage.php';
- 
- /**
- *  class transImage
- *  transform the image and watermarking
- */
- class transImage {
+require 'config.transImage.php';
+
+/**
+*  class transImage
+*  transform the image and watermarking
+*/
+class transImage {
     
     const ROTATEONEXIF = CONFIG_transImage::ROTATEONEXIF;
     const IMGTYPES     = CONFIG_transImage::IMGTYPES;
@@ -236,8 +236,8 @@
     private function rotateExif() {
         $degArr = Array(
                 3 => 180,
-                8 => 270,
-                6 => 90,
+                6 => 270,
+                8 => 90,
                 4 => 180,
                 7 => 270,
                 5 => 90,
@@ -346,7 +346,8 @@
     
     public function out($type = self::IMAGE_TYPE_JPEG) {
         header('Content-Type: image/' . $type);
-        call_user_func('image' . $type, $this->ImgRes);
+        $quality = 75;
+        call_user_func('image' . $type, $this->ImgRes, NULL, $quality);
     }
     
     /*
